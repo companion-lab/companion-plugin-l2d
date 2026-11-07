@@ -5,7 +5,7 @@
 // the same responder pattern the vrm plugin's sections use.
 
 import { useEffect, useState, type ChangeEvent } from "react";
-import type { PluginContext } from "../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import { callWithRetry } from "./retry";
 import { tauriInvoke } from "./vendor/tauri-events";
 import { fetchActiveModelClips, type ModelClips } from "./library";

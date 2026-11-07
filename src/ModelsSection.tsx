@@ -5,7 +5,7 @@
 // runs; switching emits the l2d-load event the main-window engine answers.
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import type { PluginContext } from "../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import { callWithRetry } from "./retry";
 import { listModels, type ModelMeta } from "./library";
 import { importFolder, importZip, type ImportProgress } from "./upload";

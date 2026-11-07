@@ -13,7 +13,7 @@
 // from the plugin backend as base64 (see loader.ts).
 
 import * as PIXI from "pixi.js";
-import type { PluginContext } from "../../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import { loadLive2DModel, type LoadedModel } from "./loader";
 import { resolveNamed } from "./names";
 import { coerceDisplay, DEFAULT_DISPLAY, type DisplaySettings } from "./display";

@@ -10,7 +10,7 @@
 // with the core already in place.
 
 import * as PIXI from "pixi.js";
-import type { PluginContext } from "../../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import { base64ToUint8Array } from "./base64";
 import { callWithRetry } from "../retry";
 

@@ -2,7 +2,7 @@
 // lists for the active model (fetched fresh from the backend — the settings
 // window has no engine to ask).
 
-import type { PluginContext } from "../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import { collectExpressions, collectMotions, type NamedFile } from "./engine/names";
 import { callWithRetry } from "./retry";
 

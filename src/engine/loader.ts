@@ -13,7 +13,7 @@
 // returns absolute URLs unchanged).
 
 import type { Live2DModel } from "pixi-live2d-display/cubism4";
-import type { PluginContext } from "../../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import {
   buildModelSettings,
   neutralExpressionFile,

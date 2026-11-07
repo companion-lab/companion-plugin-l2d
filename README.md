@@ -26,20 +26,20 @@ enables the protocol scoped to `$APPDATA/plugins/**` and
 
 ```sh
 pnpm install        # also fetches the Cubism Core (postinstall)
-node app/scripts/build-plugin.mjs plugin-repos/companion-plugin-l2d --backend --out plugins/companion-plugin-l2d
+pnpm build          # stage the package to dist/package
+pnpm build --zip    # also write dist/<id>-<version>.zip
 ```
 
-`pnpm fetch-core` re-downloads the Cubism Core if `assets/core/` is empty.
-Without it the engine reports the missing runtime instead of rendering.
+The repo is standalone: the frontend imports the SDK through the published
+`@companion-lab/plugin` package (the host app aliases that import to its own
+SDK copy at load time), types resolve from this repo's own devDependencies,
+and no build step references paths outside this directory. `pnpm fetch-core`
+re-downloads the Cubism Core if `assets/core/` is empty — without it the
+engine reports the missing runtime instead of rendering.
 
-## App-side changes this plugin required
-
-- `BUNDLED_IDS` in `app/src-tauri/src/plugin_host/mod.rs` gained
-  `companion-plugin-l2d` (dev seeding/bundled status).
-- `tauri.conf.json` enables `assetProtocol` scoped to the plugins dirs.
-- `join_all_spaces` in `app/src-tauri/src/lib.rs` makes the pet window follow
-  every Space (a stranded window stops painting, which also starves its
-  animation and IPC loops).
+For development against a companion-tauri checkout, the app's own build
+wrapper works too and produces a byte-identical bundle:
+`node app/scripts/build-plugin.mjs plugin-repos/companion-plugin-l2d --backend --out plugins/companion-plugin-l2d`.
 
 ## Runtime
 
@@ -133,6 +133,16 @@ plugin's Status section shows a warning while vrm is also enabled.
 - `backend/` — Rust backend compiled to a cdylib (model serving + imports)
 - `assets/core/` — Cubism Core runtime (fetched, gitignored)
 - `scripts/fetch-core.mjs` — Cubism Core downloader (postinstall hook)
+- `scripts/build.mjs` — standalone package build (`pnpm build`)
+
+### Host-side notes (companion-tauri checkout)
+
+Integrating this plugin with a companion-tauri dev build required three
+small host changes: `BUNDLED_IDS` gained `companion-plugin-l2d`
+(`plugin_host/mod.rs`), `tauri.conf.json` enables `assetProtocol` scoped to
+the plugins dirs, and `join_all_spaces` in `lib.rs` makes the pet window
+follow every Space (a stranded window stops painting, which also starves its
+animation and IPC loops).
 
 ## Tests
 

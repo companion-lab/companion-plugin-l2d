@@ -7,7 +7,7 @@
 // plugin events. Everything else no-ops outside the main window.
 
 import { useEffect, useRef, useState } from "react";
-import { definePlugin, type PluginContext } from "../../../sdk/js/@companion/plugin";
+import { definePlugin, type PluginContext } from "@companion-lab/plugin";
 import {
   onEngineError,
   startLive2DEngine,

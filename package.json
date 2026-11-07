@@ -6,6 +6,7 @@
   "scripts": {
     "fetch-core": "node scripts/fetch-core.mjs",
     "postinstall": "node scripts/fetch-core.mjs",
+    "build": "node scripts/build.mjs",
     "test": "vitest run"
   },
   "dependencies": {
@@ -15,7 +16,12 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
+    "companion-cli": "^0.1.0",
+    "esbuild": "^0.28.2",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
   }
 }

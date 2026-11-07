@@ -13,7 +13,7 @@
 // Folder uploads read a webkitdirectory input (every File carries its
 // webkitRelativePath); zip uploads send one file and let the backend extract.
 
-import type { PluginContext } from "../../../sdk/js/@companion/plugin";
+import type { PluginContext } from "@companion-lab/plugin";
 import { callWithRetry } from "./retry";
 
 export const UPLOAD_CHUNK_BYTES = 1 << 20; // 1 MiB of raw bytes per chunk
