@@ -167,8 +167,9 @@ fn scan_model_dirs(root: &Path) -> Vec<(PathBuf, String, String)> {
 /// ordering across the IPC boundary).
 fn model_files(dir: &Path) -> Result<Vec<String>, String> {
     fn walk(dir: &Path, prefix: &str, out: &mut Vec<String>) -> Result<(), String> {
-        for entry in
-            fs::read_dir(dir).map_err(|e| format!("read {}: {e}", dir.display()))?.flatten()
+        for entry in fs::read_dir(dir)
+            .map_err(|e| format!("read {}: {e}", dir.display()))?
+            .flatten()
         {
             let name = entry.file_name().to_string_lossy().into_owned();
             if name.starts_with('.') {
@@ -249,7 +250,10 @@ fn import_chunk(
     use base64::Engine;
     let staging = staging_dir(tmp_root, token)?;
     let rel_path = sanitize_rel_path(rel)?;
-    if rel_path.file_name().map(|n| n == ".import-total").unwrap_or(false)
+    if rel_path
+        .file_name()
+        .map(|n| n == ".import-total")
+        .unwrap_or(false)
         || rel_path.to_string_lossy().starts_with(".import-total")
     {
         return Err("reserved file name".into());
@@ -274,7 +278,8 @@ fn import_chunk(
             .append(true)
             .open(&path)
             .map_err(|e| format!("open {}: {e}", path.display()))?;
-        f.write_all(&bytes).map_err(|e| format!("append {}: {e}", path.display()))?;
+        f.write_all(&bytes)
+            .map_err(|e| format!("append {}: {e}", path.display()))?;
     }
     let written = fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
     if written > MAX_IMPORT_FILE_BYTES {
@@ -302,7 +307,10 @@ fn flatten_single_root(dir: &Path) -> Result<(), String> {
         return Ok(());
     }
     let inner = entries[0].clone();
-    for child in fs::read_dir(&inner).map_err(|e| format!("read {}: {e}", inner.display()))?.flatten() {
+    for child in fs::read_dir(&inner)
+        .map_err(|e| format!("read {}: {e}", inner.display()))?
+        .flatten()
+    {
         let target = dir.join(child.file_name());
         if target.exists() {
             return Err(format!("cannot flatten: {} exists", target.display()));
@@ -327,7 +335,8 @@ fn extract_zip(zip_path: &Path, dest: &Path) -> Result<(), String> {
             .by_index(i)
             .map_err(|e| format!("zip entry {i}: {e}"))?;
         let name = entry.name().to_string();
-        if name.starts_with("__MACOSX/") || name.split('/').any(|c| c.starts_with('.') && c.len() > 1)
+        if name.starts_with("__MACOSX/")
+            || name.split('/').any(|c| c.starts_with('.') && c.len() > 1)
         {
             continue;
         }
@@ -349,8 +358,8 @@ fn extract_zip(zip_path: &Path, dest: &Path) -> Result<(), String> {
         if let Some(parent) = out_path.parent() {
             fs::create_dir_all(parent).map_err(|e| format!("mkdir: {e}"))?;
         }
-        let mut out =
-            fs::File::create(&out_path).map_err(|e| format!("create {}: {e}", out_path.display()))?;
+        let mut out = fs::File::create(&out_path)
+            .map_err(|e| format!("create {}: {e}", out_path.display()))?;
         std::io::copy(&mut entry, &mut out)
             .map_err(|e| format!("extract {}: {e}", out_path.display()))?;
     }
@@ -383,7 +392,12 @@ fn import_commit(
                 .map_err(|e| format!("read staging: {e}"))?
                 .flatten()
                 .map(|e| e.path())
-                .filter(|p| p.extension().and_then(|e| e.to_str()).map(|e| e.eq_ignore_ascii_case("zip")).unwrap_or(false))
+                .filter(|p| {
+                    p.extension()
+                        .and_then(|e| e.to_str())
+                        .map(|e| e.eq_ignore_ascii_case("zip"))
+                        .unwrap_or(false)
+                })
                 .collect();
             match zips.len() {
                 1 => {
@@ -606,7 +620,9 @@ impl CompanionPluginL2d {
 
     fn op_import_begin(&self, payload: &Value) -> Result<Value, String> {
         let name = payload.get("name").and_then(Value::as_str).unwrap_or("");
-        let tmp_root = self.import_tmp_root().ok_or("plugin data dir unavailable")?;
+        let tmp_root = self
+            .import_tmp_root()
+            .ok_or("plugin data dir unavailable")?;
         let token = import_begin(&tmp_root, name)?;
         Ok(json!({ "token": token }))
     }
@@ -628,7 +644,9 @@ impl CompanionPluginL2d {
             .get("base64")
             .and_then(Value::as_str)
             .ok_or("import_chunk: missing base64")?;
-        let tmp_root = self.import_tmp_root().ok_or("plugin data dir unavailable")?;
+        let tmp_root = self
+            .import_tmp_root()
+            .ok_or("plugin data dir unavailable")?;
         let written = import_chunk(&tmp_root, token, path, offset, base64_data)?;
         Ok(json!({ "received": written }))
     }
@@ -643,7 +661,9 @@ impl CompanionPluginL2d {
             .and_then(Value::as_str)
             .ok_or("import_commit: missing mode")?;
         let name = payload.get("name").and_then(Value::as_str).unwrap_or("");
-        let tmp_root = self.import_tmp_root().ok_or("plugin data dir unavailable")?;
+        let tmp_root = self
+            .import_tmp_root()
+            .ok_or("plugin data dir unavailable")?;
         let models_root = self.custom_root().ok_or("plugin data dir unavailable")?;
         let (id, model_name) = import_commit(&tmp_root, &models_root, token, mode, name)?;
         Ok(json!({ "id": id, "name": model_name }))
@@ -691,18 +711,20 @@ impl Plugin for CompanionPluginL2d {
         if let Some(ctx) = &self.ctx {
             match &result {
                 Ok(_) => ctx.info(&format!("{method} in {:?} ok=true", started.elapsed())),
-                Err(e) => ctx.info(&format!("{method} in {:?} ok=false: {e}", started.elapsed())),
+                Err(e) => ctx.info(&format!(
+                    "{method} in {:?} ok=false: {e}",
+                    started.elapsed()
+                )),
             }
         }
         result
     }
 
     fn tools(&mut self) -> Vec<ToolDef> {
-        vec![ToolDef {
-            name: "companion_plugin_l2d_ping".into(),
-            description: "Check that the companion-plugin-l2d backend is reachable.".into(),
-            input_schema: json!({ "type": "object", "properties": {} }),
-        }]
+        // No LLM-facing tools: the model UI drives the backend directly via
+        // the l2d.* methods, and ping is an internal liveness check used by
+        // the settings section, not something chat should call.
+        vec![]
     }
 }
 
@@ -730,7 +752,13 @@ mod tests {
         ] {
             assert!(is_model_file(name), "{name} should be included");
         }
-        for name in ["Read me.txt", "模型説明.txt", "模型.url", ".DS_Store", "items.json"] {
+        for name in [
+            "Read me.txt",
+            "模型説明.txt",
+            "模型.url",
+            ".DS_Store",
+            "items.json",
+        ] {
             assert!(!is_model_file(name), "{name} should be excluded");
         }
     }
@@ -746,7 +774,10 @@ mod tests {
             "",
             "././",
         ] {
-            assert!(sanitize_rel_path(bad).is_err(), "{bad:?} should be rejected");
+            assert!(
+                sanitize_rel_path(bad).is_err(),
+                "{bad:?} should be rejected"
+            );
         }
         assert_eq!(
             sanitize_rel_path("sub/dir/IceGirl.model3.json")
@@ -765,7 +796,10 @@ mod tests {
     #[test]
     fn sanitize_model_name_strips_separators() {
         assert_eq!(sanitize_model_name("IceGirl").unwrap(), "IceGirl");
-        assert_eq!(sanitize_model_name("My Model (v2)").unwrap(), "My Model (v2)");
+        assert_eq!(
+            sanitize_model_name("My Model (v2)").unwrap(),
+            "My Model (v2)"
+        );
         assert_eq!(sanitize_model_name("../../etc").unwrap(), "etc");
         assert_eq!(sanitize_model_name("a/b\\c").unwrap(), "a-b-c");
         assert_eq!(sanitize_model_name("  ..x..  ").unwrap(), "x");
@@ -814,19 +848,12 @@ mod tests {
         // Retried zero-offset chunk truncates instead of duplicating.
         assert_eq!(chunk("IceGirl.model3.json", 0, b"{\"Version\":3}"), 13);
         // Offset-mismatched appends are rejected.
-        assert!(import_chunk(
-            &tmp_root,
-            &token,
-            "IceGirl.model3.json",
-            99,
-            "eA=="
-        )
-        .is_err());
+        assert!(import_chunk(&tmp_root, &token, "IceGirl.model3.json", 99, "eA==").is_err());
         chunk("tex/moc3.bin", 0, b"MOC3");
         chunk("tex/moc3.bin", 4, b"DATA");
 
-        let (id, name) = import_commit(&tmp_root, &models_root, &token, "folder", "My Model")
-            .unwrap();
+        let (id, name) =
+            import_commit(&tmp_root, &models_root, &token, "folder", "My Model").unwrap();
         assert_eq!(id, "custom:IceGirl");
         assert_eq!(name, "IceGirl");
         let dir = models_root.join("My Model");
@@ -845,11 +872,13 @@ mod tests {
         use zip::ZipWriter;
 
         let (tmp_root, models_root) = test_roots("zip");
-        let zip_path = std::env::temp_dir().join(format!("l2d-test-zip-src-{}.zip", std::process::id()));
+        let zip_path =
+            std::env::temp_dir().join(format!("l2d-test-zip-src-{}.zip", std::process::id()));
         {
             let file = fs::File::create(&zip_path).unwrap();
             let mut zw = ZipWriter::new(file);
-            let opts = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            let opts =
+                SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
             zw.add_directory("MyModel/textures", opts).unwrap();
             let add = |zw: &mut ZipWriter<fs::File>, name: &str, data: &[u8]| {
                 zw.start_file(name, opts).unwrap();
@@ -869,8 +898,7 @@ mod tests {
             base64::engine::general_purpose::STANDARD.encode(fs::read(&zip_path).unwrap())
         };
         import_chunk(&tmp_root, &token, "model.zip", 0, &b64).unwrap();
-        let (id, name) =
-            import_commit(&tmp_root, &models_root, &token, "zip", "Zipped").unwrap();
+        let (id, name) = import_commit(&tmp_root, &models_root, &token, "zip", "Zipped").unwrap();
         assert_eq!(id, "custom:IceGirl");
         assert_eq!(name, "IceGirl");
 
@@ -918,6 +946,8 @@ mod tests {
     fn unknown_method_is_an_error() {
         let mut plugin = CompanionPluginL2d::new();
         assert!(plugin.handle("nope", json!({})).is_err());
-        assert!(plugin.handle("companion-plugin-l2d.ping", json!({})).is_ok());
+        assert!(plugin
+            .handle("companion-plugin-l2d.ping", json!({}))
+            .is_ok());
     }
 }
