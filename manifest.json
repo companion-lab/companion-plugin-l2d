@@ -1,0 +1,18 @@
+{
+  "id": "companion-plugin-l2d",
+  "name": "Live2D Avatar",
+  "version": "0.1.0",
+  "description": "Live2D avatar for the desktop overlay: renders the bundled Cubism model and answers the avatar bus (chat emotions, TTS lip sync, click-through).",
+  "abi": 2,
+  "permissions": [
+    "storage",
+    "events",
+    "tools"
+  ],
+  "frontend": {
+    "entry": "frontend.js"
+  },
+  "backend": {
+    "library": "libcompanion_plugin_l2d_backend.dylib"
+  }
+}

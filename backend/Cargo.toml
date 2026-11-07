@@ -1,0 +1,23 @@
+[package]
+name = "companion-plugin-l2d-backend"
+version = "0.1.0"
+description = "Companion Plugin L2d backend for companion"
+license = "MIT"
+edition = "2021"
+
+[lib]
+name = "companion_plugin_l2d_backend"
+crate-type = ["cdylib"]
+
+[dependencies]
+companion-plugin-sdk = "0.1"
+# Serves model files to the webview as base64 over IPC (small files, core
+# runtime), exactly like the vrm backend's model/thumbnail payloads.
+base64 = "0.22"
+# Zip import for user-uploaded Live2D model bundles (store + deflate cover
+# the formats model stores ship).
+zip = { version = "2", default-features = false, features = ["deflate"] }
+serde_json = "1"
+
+[profile.release]
+strip = true

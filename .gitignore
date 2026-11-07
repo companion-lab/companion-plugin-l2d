@@ -1,0 +1,12 @@
+# Build outputs
+node_modules/
+target/
+dist/
+frontend.js
+
+# Runtime assets — not committed. `pnpm fetch-core` downloads the Cubism
+# Core; model libraries are user-imported at runtime (see README).
+assets/
+
+# macOS
+.DS_Store
