@@ -150,3 +150,27 @@ animation and IPC loops).
 pnpm vitest        # pure modules: name mapping, settings-JSON enrichment, upload chunking
 cargo test         # backend: manifest matching, path safety, import sessions
 ```
+
+## Downloading releases
+
+CI builds installable zips on every push to `main` (the "Build plugin"
+workflow). To publish a release, push a tag matching the version in
+`manifest.json`:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+The release gets one zip per platform — download the one for your machine
+and import it in the Companion app via **Settings → Plugins → Import
+plugin…**:
+
+| File | Platform |
+|---|---|
+| `companion-plugin-l2d-0.1.0-linux-x86_64.zip` | Linux (Intel/AMD 64-bit) |
+| `companion-plugin-l2d-0.1.0-macos-arm64.zip` | macOS (Apple Silicon) |
+| `companion-plugin-l2d-0.1.0-macos-x86_64.zip` | macOS (Intel) |
+| `companion-plugin-l2d-0.1.0-windows-x86_64.zip` | Windows (64-bit) |
+
+Non-tag runs of the workflow publish the same zips as run artifacts for
+testing. CI never touches the zips committed under `dist/`.
