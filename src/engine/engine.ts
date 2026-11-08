@@ -388,12 +388,18 @@ function runEngine(ctx: PluginContext, canvas: HTMLCanvasElement): () => void {
         /* defaults are fine */
       }
 
-      // Perf config is host-owned state (same read the vrm engine does);
-      // fall back to sane defaults if the read fails.
+      // Perf config lives in the vrm plugin's backend (same read the vrm
+      // engine does); a cross-plugin call must name the host command — this
+      // plugin's ctx.backend.call routes to the l2d backend only. Falls
+      // back to sane defaults if the read fails.
       let perf: PerfConfigShape = { max_pixel_ratio: 2, fps_cap: "sixty", antialias: true };
       try {
         perf = await callWithRetry(
-          () => tauriInvoke<PerfConfigShape>("get_performance_config"),
+          () =>
+            tauriInvoke<PerfConfigShape>("plugin_call", {
+              plugin_id: "vrm",
+              method: "vrm.get_performance_config",
+            }),
           ctx.log,
           "get_performance_config",
         );
