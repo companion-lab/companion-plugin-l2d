@@ -4,11 +4,11 @@
 // no-ops, so tests flow through plugin events to the main-window engine —
 // the same responder pattern the vrm plugin's sections use.
 
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type { PluginContext } from "@companion-lab/plugin";
 import { callWithRetry } from "./retry";
 import { tauriInvoke } from "./vendor/tauri-events";
-import { fetchActiveModelClips, type ModelClips } from "./library";
+import { fetchActiveModelClips, fetchModelClips, type ModelClips } from "./library";
 import { coerceDisplay, type DisplaySettings } from "./engine/display";
 
 const DISPLAY_STORAGE_KEY = "display";
@@ -168,29 +168,52 @@ function ClipGallery({
   );
 }
 
-export function ExpressionsSection({ ctx }: { ctx: PluginContext }) {
+/** Clip list for the active model: fetched once at mount, then refreshed
+ *  whenever the engine reports a different model loaded — the Models section's
+ *  switches surface here as l2d-status events carrying the loaded id. The
+ *  refresh fetches that id directly (storage may not hold the new selection
+ *  yet when the event lands). */
+function useModelClips(ctx: PluginContext): ModelClips | null {
   const [clips, setClips] = useState<ModelClips | null>(null);
+  // Id the displayed clips belong to (null until the first fetch settles);
+  // dedupes status events against what's already shown.
+  const clipsIdRef = useRef<string | null>(null);
   useEffect(() => {
     void fetchActiveModelClips(ctx)
-      .then(setClips)
+      .then((next) => {
+        // A l2d-status refresh that raced ahead of this fetch wins.
+        if (clipsIdRef.current) return;
+        setClips(next);
+      })
       .catch((e) =>
         ctx.log.warn(`clip listing failed: ${e instanceof Error ? e.message : String(e)}`),
       );
+    return ctx.events.on("l2d-status", (payload) => {
+      const p = (payload ?? {}) as Record<string, unknown>;
+      if (p.ok !== true || typeof p.id !== "string" || !p.id) return;
+      if (clipsIdRef.current === p.id) return;
+      clipsIdRef.current = p.id;
+      void fetchModelClips(ctx, p.id)
+        .then((next) => {
+          if (next) setClips(next);
+        })
+        .catch((e) => {
+          clipsIdRef.current = null; // let a later status retry
+          ctx.log.warn(`clip refresh failed: ${e instanceof Error ? e.message : String(e)}`);
+        });
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  return clips;
+}
+
+export function ExpressionsSection({ ctx }: { ctx: PluginContext }) {
+  const clips = useModelClips(ctx);
   return <ClipGallery ctx={ctx} title="Expressions" clips={clips} kind="expression" />;
 }
 
 export function MotionsSection({ ctx }: { ctx: PluginContext }) {
-  const [clips, setClips] = useState<ModelClips | null>(null);
-  useEffect(() => {
-    void fetchActiveModelClips(ctx)
-      .then(setClips)
-      .catch((e) =>
-        ctx.log.warn(`clip listing failed: ${e instanceof Error ? e.message : String(e)}`),
-      );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const clips = useModelClips(ctx);
   return <ClipGallery ctx={ctx} title="Motions" clips={clips} kind="motion" />;
 }
 

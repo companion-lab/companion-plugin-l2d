@@ -33,9 +33,25 @@ export async function listModels(ctx: PluginContext): Promise<ModelMeta[]> {
   }));
 }
 
+/** Clip lists for one model id. Only the file manifest is needed (no model
+ *  bytes). Throws when the manifest can't be loaded (deleted/invalid id). */
+export async function fetchModelClips(ctx: PluginContext, id: string): Promise<ModelClips> {
+  const manifest = await callWithRetry(
+    () => ctx.backend.call<{ files: Array<{ path: string }> }>("l2d.load_model", { id }),
+    ctx.log,
+    "l2d.load_model",
+  );
+  const paths = (manifest.files ?? []).map((f) => f.path);
+  return {
+    id,
+    expressions: collectExpressions(paths),
+    motions: collectMotions(paths),
+  };
+}
+
 /** Clip lists for the active model: the stored selection, else the first
  *  bundled model. Falls back down the list when the stored model was
- *  deleted. Only the file manifest is needed (no model bytes). */
+ *  deleted. */
 export async function fetchActiveModelClips(ctx: PluginContext): Promise<ModelClips | null> {
   const models = await listModels(ctx);
   if (models.length === 0) return null;
@@ -51,17 +67,7 @@ export async function fetchActiveModelClips(ctx: PluginContext): Promise<ModelCl
     const model = models.find((m) => m.id === id);
     if (!model) continue;
     try {
-      const manifest = await callWithRetry(
-        () => ctx.backend.call<{ files: Array<{ path: string }> }>("l2d.load_model", { id }),
-        ctx.log,
-        "l2d.load_model",
-      );
-      const paths = (manifest.files ?? []).map((f) => f.path);
-      return {
-        id,
-        expressions: collectExpressions(paths),
-        motions: collectMotions(paths),
-      };
+      return await fetchModelClips(ctx, id);
     } catch {
       // Deleted/invalid model — try the next candidate.
     }
