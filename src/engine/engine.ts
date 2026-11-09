@@ -238,21 +238,21 @@ function runEngine(ctx: PluginContext, canvas: HTMLCanvasElement): () => void {
   };
 
   /** Cursor tracking: the canvas never receives pointer events (it sits
-   *  behind the host interaction canvas), so the global cursor position is
-   *  polled through the host command the click-through probe also uses —
-   *  window-local CSS coords, or null when the cursor is outside the
-   *  window. Focus targets are smoothed by the FocusController itself. */
+   *  behind the host interaction canvas), so the cursor position is polled
+   *  through the host command cursor_global — window-local CSS coords that
+   *  are NOT clamped to the window, so the gaze keeps pointing at the cursor
+   *  while it is outside the window or on another display (model.focus() is
+   *  angle-based, so out-of-bounds targets extrapolate correctly). null only
+   *  means no cursor position is available (unsupported platform); the last
+   *  gaze is kept then. Targets are smoothed by the FocusController itself. */
   const startTracking = () => {
     const id = window.setInterval(() => {
       const loaded = loadedRef.current;
       if (!loaded || !displayRef.current.tracking) return;
-      void tauriInvoke<[number, number, number, number] | null>("cursor_window_local")
+      void tauriInvoke<[number, number, number, number] | null>("cursor_global")
         .then((cursor) => {
           if (cancelled || loadedRef.current !== loaded) return;
-          if (!cursor) {
-            loaded.model.focus(0, 0);
-            return;
-          }
+          if (!cursor) return;
           const [x, y, w, h] = cursor;
           if (w <= 0 || h <= 0) return;
           loaded.model.focus(x, y);
