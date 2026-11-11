@@ -1,6 +1,6 @@
 [package]
 name = "companion-plugin-l2d-backend"
-version = "0.1.0"
+version = "0.3.0"
 description = "Companion Plugin L2d backend for companion"
 license = "MIT"
 edition = "2021"
@@ -10,7 +10,7 @@ name = "companion_plugin_l2d_backend"
 crate-type = ["cdylib"]
 
 [dependencies]
-companion-plugin-sdk = "0.1"
+companion-plugin-sdk = "0.3"
 # Serves model files to the webview as base64 over IPC (small files, core
 # runtime), exactly like the vrm backend's model/thumbnail payloads.
 base64 = "0.22"

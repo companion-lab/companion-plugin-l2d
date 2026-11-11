@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@companion-lab/plugin':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.3.0
+        version: 0.3.0
       pixi-live2d-display:
         specifier: ^0.4.0
         version: 0.4.0(0736f5bd67d2e4de7e9fff36ad63fa2e)
@@ -22,8 +22,8 @@ importers:
         specifier: ^18.3.12
         version: 18.3.31
       companion-cli:
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.3.0
+        version: 0.3.0
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -36,8 +36,8 @@ importers:
 
 packages:
 
-  '@companion-lab/plugin@0.1.0':
-    resolution: {integrity: sha512-jiJOoVYl9EdFFWTXBUDcLghgzDrMoOq9JxU5vgB1V9mLpyyNmGPAUbg6YjGiCebcdvLitM+ubq34HBQIyCkVlQ==}
+  '@companion-lab/plugin@0.3.0':
+    resolution: {integrity: sha512-YpDe49467WFVMsiOJsgmu34WiS99la+qXnorKuidQB2uqqVl9HtRqvfiToZkYR+8124nE/b63rIm4Ign29ElTw==}
     peerDependencies:
       react: '>=18.0.0'
     peerDependenciesMeta:
@@ -767,8 +767,8 @@ packages:
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
 
-  companion-cli@0.1.0:
-    resolution: {integrity: sha512-JhOtLM+GLOYMvnmktY5mcT7v8Ej7zsr22GleNXsae1FpBeWrHSRMxSwBlA7Ja+MxpXC3ZSHmSbXcuX3BDXrijg==}
+  companion-cli@0.3.0:
+    resolution: {integrity: sha512-c8oSFsuhm8+y+OmTTUxJ+PPWg05ljPx6mN/Ctmh6H6AbzzwlovViD6+jTW+hujhf2uHLF8JXf37Rl1C7RSMYDA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -1259,7 +1259,7 @@ packages:
 
 snapshots:
 
-  '@companion-lab/plugin@0.1.0': {}
+  '@companion-lab/plugin@0.3.0': {}
 
   '@esbuild/aix-ppc64@0.28.2':
     optional: true
@@ -1756,7 +1756,7 @@ snapshots:
 
   commondir@1.0.1: {}
 
-  companion-cli@0.1.0:
+  companion-cli@0.3.0:
     dependencies:
       esbuild: 0.28.2
       fflate: 0.8.3

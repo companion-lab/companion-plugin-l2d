@@ -1,6 +1,6 @@
 {
   "name": "companion-plugin-l2d",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Live2D Avatar plugin for companion.",
   "scripts": {
@@ -10,18 +10,20 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@companion-lab/plugin": "^0.1.0",
+    "@companion-lab/plugin": "^0.3.0",
     "pixi-live2d-display": "^0.4.0",
     "pixi.js": "^6.5.10"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
-    "companion-cli": "^0.1.0",
+    "companion-cli": "^0.3.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

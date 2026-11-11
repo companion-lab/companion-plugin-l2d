@@ -1,4 +1,5 @@
 allowBuilds:
   esbuild: false
 minimumReleaseAgeExclude:
-  - companion-cli@0.1.0
+  - '@companion-lab/plugin@0.3.0'
+  - companion-cli@0.3.0
