@@ -3,6 +3,7 @@
   "version": "0.3.1",
   "private": true,
   "description": "Live2D Avatar plugin for companion.",
+  "author": "Companion Lab",
   "scripts": {
     "fetch-core": "node scripts/fetch-core.mjs",
     "postinstall": "node scripts/fetch-core.mjs",
