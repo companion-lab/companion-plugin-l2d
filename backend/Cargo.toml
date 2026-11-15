@@ -1,6 +1,6 @@
 [package]
 name = "companion-plugin-l2d-backend"
-version = "0.3.0"
+version = "0.3.1"
 description = "Companion Plugin L2d backend for companion"
 license = "MIT"
 edition = "2021"
