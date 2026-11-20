@@ -244,12 +244,27 @@ function runEngine(ctx: PluginContext, canvas: HTMLCanvasElement): () => void {
    *  while it is outside the window or on another display (model.focus() is
    *  angle-based, so out-of-bounds targets extrapolate correctly). null only
    *  means no cursor position is available (unsupported platform); the last
-   *  gaze is kept then. Targets are smoothed by the FocusController itself. */
+   *  gaze is kept then. Targets are smoothed by the FocusController itself.
+   *
+   *  A host that predates cursor_global still has the click-through probe
+   *  (cursor_window_local, clamped to the window), so a rejected invoke falls
+   *  back to that command. If BOTH reject — an app build without the cursor
+   *  probes, e.g. an older release — the tracker degrades to document-level
+   *  pointermove events below: while the window takes events (it does whenever
+   *  click-through isn't ignoring the cursor), clientX/Y are the same
+   *  window-local CSS coords, and events stop once click-through engages, so
+   *  the command path stays the primary source wherever it exists. */
   const startTracking = () => {
+    // false once both probe commands have been seen rejecting; gates the
+    // one-time warn so a dead host build doesn't spam the log every 120ms.
+    let probesUnavailable = false;
     const id = window.setInterval(() => {
       const loaded = loadedRef.current;
       if (!loaded || !displayRef.current.tracking) return;
       void tauriInvoke<[number, number, number, number] | null>("cursor_global")
+        .catch(() =>
+          tauriInvoke<[number, number, number, number] | null>("cursor_window_local"),
+        )
         .then((cursor) => {
           if (cancelled || loadedRef.current !== loaded) return;
           if (!cursor) return;
@@ -257,9 +272,31 @@ function runEngine(ctx: PluginContext, canvas: HTMLCanvasElement): () => void {
           if (w <= 0 || h <= 0) return;
           loaded.model.focus(x, y);
         })
-        .catch(() => undefined);
+        .catch(() => {
+          if (!probesUnavailable) {
+            probesUnavailable = true;
+            ctx.log.warn(
+              "cursor probe commands missing on this host — gaze tracks DOM pointermove only (while the window takes events)",
+            );
+          }
+        });
     }, 120);
     cleanups.push(() => window.clearInterval(id));
+
+    // Pointer-event fallback (capture phase: the host interaction canvas on
+    // top can't starve a document-level listener). Runs alongside the probe
+    // path — duplicate feeds are harmless (FocusController smooths both) and
+    // this is what keeps tracking alive on hosts without the probe commands.
+    const onPointerMove = (e: PointerEvent) => {
+      if (cancelled) return;
+      const loaded = loadedRef.current;
+      if (!loaded || !displayRef.current.tracking) return;
+      loaded.model.focus(e.clientX, e.clientY);
+    };
+    document.addEventListener("pointermove", onPointerMove, true);
+    cleanups.push(() =>
+      document.removeEventListener("pointermove", onPointerMove, true),
+    );
   };
 
   const attach = (loaded: LoadedModel) => {
