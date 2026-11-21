@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@companion-lab/plugin':
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.3.2
+        version: 0.3.2
       pixi-live2d-display:
         specifier: ^0.4.0
         version: 0.4.0(0736f5bd67d2e4de7e9fff36ad63fa2e)
@@ -36,8 +36,8 @@ importers:
 
 packages:
 
-  '@companion-lab/plugin@0.3.1':
-    resolution: {integrity: sha512-N5DFQYMWNoza4+sL0FI2PB4qBbYi6fLkL4V0u21Dcq66y38V+9wFPk/KUwkZusQSqzx8WH+SiXNgBn0vij5rjw==}
+  '@companion-lab/plugin@0.3.2':
+    resolution: {integrity: sha512-a6wH1P2xNwl+lmf7q1xy5yDdgFOh4o0QiTS3ox+nWeLN1Vox7kX/uh5iNGQNQArpRLp7D9Tqbo3qeysjIZgzoA==}
     peerDependencies:
       react: '>=18.0.0'
     peerDependenciesMeta:
@@ -1259,7 +1259,7 @@ packages:
 
 snapshots:
 
-  '@companion-lab/plugin@0.3.1': {}
+  '@companion-lab/plugin@0.3.2': {}
 
   '@esbuild/aix-ppc64@0.28.2':
     optional: true
